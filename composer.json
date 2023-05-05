@@ -1,0 +1,18 @@
+{
+    "name": "fraob/franflix_webapp",
+    "require": {
+        "stripe/stripe-php": "^10.12",
+        "paypal/rest-api-sdk-php": "^1.14"
+    },
+    "autoload": {
+        "psr-4": {
+            "Fraob\\FranflixWebapp\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "FranObi10",
+            "email": "francescaobino10@gmail.com"
+        }
+    ]
+}
