@@ -7,6 +7,22 @@
 <?php
 # LOGIN HELPER FUNCTIONS.
 
+# Function to check if the user is blocked
+function isUserBlocked($connection, $email) {
+    $query = "SELECT role FROM users WHERE email = ?";
+    if ($stmt = $connection->prepare($query)) {
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $stmt->bind_result($role);
+        $stmt->fetch();
+        $stmt->close();
+
+        return ($role == 'blocked');
+    }
+
+    return false; // Return false by default if the query fails
+}
+
 # Function to load specified or default URL.
 function load( $page = '../home.php' )
 {
@@ -71,6 +87,8 @@ function validate($connection, $email = '', $pwd = '', $required_role = '')
     }
     # On failure retrieve error message/s.
     return array(false, $errors);
+
+  
 }
 
 

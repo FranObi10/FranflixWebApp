@@ -62,6 +62,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 
 ?>
+<style>
+#hero {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    max-height: 1000px;
+    position: relative;
+    overflow: hidden;
+}
+
+</style>
+
 
 <main id="main">
     <!-- ======= Hero Section ======= -->
@@ -89,9 +102,10 @@ $duration_minutes = date('i', strtotime($movie['duration'])) + date('H', strtoti
                     </div>
                     <div class="mt-5">
                         <button id="playButton" class="btn-play">PLAY MOVIE</button>
-                        <button id="likeButton" class="btn-like" data-movie-id="<?= $movie['id'] ?>">&#x2665;</button>
-
-
+                        <?php if ($_SESSION['user_role'] != 'registered') : ?>
+                        <button id="likeButton" class="btn-like"
+                            data-tvshow-id="<?= $tv_show['id'] ?>">&#x2665;</button>
+                        <?php endif; ?>
                         </button>
                     </div>
                 </div>
@@ -99,19 +113,9 @@ $duration_minutes = date('i', strtotime($movie['duration'])) + date('H', strtoti
     </section><!-- End Hero -->
 </main>
 
-<style>
-#hero {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    max-height: 1000px;
-    position: relative;
-    overflow: hidden;
-}
-</style>
 
-        <!-- Js Scrips to manage video and like system -->
+
+<!-- Js Scrips to manage video and like system -->
 <script>
 function showUpgradeAlert() {
     var upgradeAlert = document.getElementById("upgradeAlert");
@@ -177,7 +181,7 @@ document.getElementById("likeButton").addEventListener("click", function() {
     } else {
         var movieId = <?= $movie['id'] ?>;
         var xhr = new XMLHttpRequest();
-        xhr.open("POST", "functionality/like_show.php", true);
+        xhr.open("POST", "functionality/like_movie.php", true);
         xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
         xhr.onreadystatechange = function() {
             if (xhr.readyState == 4 && xhr.status == 200) {

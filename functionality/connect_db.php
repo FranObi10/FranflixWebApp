@@ -1,9 +1,3 @@
-<!-- /**
-* Connects to a MySQL database using the provided credentials.
-*
-* @Francesca Obino
-* @Franflix WebApp
-*/ -->
 <?php # CONNECT TO MySQL DATABASE.
 
 

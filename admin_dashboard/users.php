@@ -35,11 +35,13 @@ require('../functionality/connect_db.php');
                         class="fa-solid fa-film"></i> Shows</a>
                 <a href="#" class="list-group-item list-group-item-action bg-transparent second-text fw-bold"><i
                         class="fas fa-shopping-cart me-2"></i>Memberships</a>
-                <a href="#" class="list-group-item list-group-item-action bg-transparent text-danger fw-bold"><i
+                <a href="../logout.php"
+                    class="list-group-item list-group-item-action bg-transparent text-danger fw-bold"><i
                         class="fas fa-power-off me-2"></i>Logout</a>
             </div>
         </div>
         <!-- /#sidebar-wrapper -->
+
 
         <!-- Page Content -->
         <div id="page-content-wrapper">
@@ -56,7 +58,7 @@ require('../functionality/connect_db.php');
                 </button>
 
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0 justify-content-end">
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle second-text fw-bold" href="#" id="navbarDropdown"
                                 role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -64,13 +66,12 @@ require('../functionality/connect_db.php');
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                                 <li><a class="dropdown-item" href="../home.php">Home</a></li>
-                                <li><a class="dropdown-item" href="logout.php">Logout</a></li>
+                                <li><a class="dropdown-item" href="../logout.php">Logout</a></li>
                             </ul>
                         </li>
                     </ul>
                 </div>
             </nav>
-
             <div class="container-fluid px-4">
                 <div class="row g-3 my-2">
                 </div>
@@ -104,11 +105,13 @@ require('../functionality/connect_db.php');
             <td>' . $row['role'] . '</td>
             <td>' . $row['reg_date'] . '</td>
             <td>
-            <a href="edit_user.php?user_id=' . $row['user_id'] . '">Edit</a> |
-            <a href="delete_user.php?user_id=' . $row['user_id'] . '">Delete</a>
+            <a href="#" data-bs-toggle="modal" data-bs-target="#editUserModal" data-user-id="' . $row['user_id'] .'" class="edit-link">Edit</a> |
+            <a href="#" data-bs-toggle="modal" data-bs-target="#deleteUserModal" data-user-id="' . $row['user_id'] . '" class="delete-link">Delete</a>
+            
             </td>
         </tr>';
     }
+    
     ?>
 
                         </table>
@@ -131,26 +134,29 @@ require('../functionality/connect_db.php');
                 <form id="editUserForm" method="post" action="edit_user.php">
                     <div class="modal-body">
                         <!-- Add form inputs for editing user details -->
-                        <input type="hidden" name="user_id" id="edit_user_id">
+                        <input type="hidden" name="edit_user_id" id="edit_user_id">
                         <div class="form-group">
                             <label for="edit_first_name">First Name</label>
-                            <input type="text" class="form-control" id="edit_first_name" name="first_name" required>
+                            <input type="text" class="form-control" id="edit_first_name" name="edit_first_name"
+                                required>
                         </div>
                         <div class="form-group">
                             <label for="edit_last_name">Last Name</label>
-                            <input type="text" class="form-control" id="edit_last_name" name="last_name" required>
+                            <input type="text" class="form-control" id="edit_last_name" name="edit_last_name" required>
                         </div>
                         <div class="form-group">
                             <label for="edit_email">Email</label>
-                            <input type="email" class="form-control" id="edit_email" name="email" required>
+                            <input type="email" class="form-control" id="edit_email" name="edit_email" required>
                         </div>
                         <div class="form-group">
                             <label for="edit_role">Role</label>
-                            <select class="form-control" id="edit_role" name="role" required>
+                            <select class="form-control" id="edit_role" name="edit_role" required>
                                 <option value="user">User</option>
                                 <option value="admin">Admin</option>
+                                <option value="blocked">Blocked</option>
                             </select>
                         </div>
+
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -161,6 +167,39 @@ require('../functionality/connect_db.php');
         </div>
     </div>
     <!-- End Edit User Modal -->
+
+    <script>
+    // Edit User Modal
+    // Edit User Modal
+    var editUserModal = document.getElementById('editUserModal');
+    editUserModal.addEventListener('show.bs.modal', function(event) {
+        var button = event.relatedTarget;
+        var userId = button.getAttribute('data-user-id');
+
+        // Make an AJAX request to fetch the user data based on the userId
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', 'fetch_user.php?user_id=' + userId, true);
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+                if (xhr.status === 200) {
+                    var userData = JSON.parse(xhr.responseText);
+
+                    // Populate the form fields with the fetched user data
+                    document.getElementById('edit_user_id').value = userData.user_id;
+                    document.getElementById('edit_first_name').value = userData.first_name;
+                    document.getElementById('edit_last_name').value = userData.last_name;
+                    document.getElementById('edit_email').value = userData.email;
+                    document.getElementById('edit_role').value = userData.role;
+                } else {
+                    console.error('Error: ' + xhr.status);
+                }
+            }
+        };
+        xhr.send();
+    });
+    </script>
+
+
 
     <!-- Delete User Modal -->
     <div class="modal fade" id="deleteUserModal" tabindex="-1" aria-labelledby="deleteUserModalLabel"
@@ -234,5 +273,5 @@ require('../functionality/connect_db.php');
 </body>
 
 <?php
-include('../includes/footer.html');
+include('../includes/admin_footer.html');
 ?>

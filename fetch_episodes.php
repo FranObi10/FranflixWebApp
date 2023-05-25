@@ -1,65 +1,93 @@
-<!-- /**
-This script searches for TV show episodes on YouTube and adds them to a MySQL database. 
-DA RIVEDERE
-* @Francesca Obino
-* @Franflix WebApp
-*/ -->
 <?php
-// Include your database connection script
 require('functionality/connect_db.php');
 
-function search_youtube($query, $apiKey) {
-    $url = "https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=50&q=" . urlencode($query) . "&key=" . $apiKey;
-    $response = file_get_contents($url);
-    $data = json_decode($response, true);
+function fetch_episodes($tv_show_id, $season, $episode) {
+    $api_key = 'AIzaSyCTYHaMMJLIC_GAZzL0akn6X8T3fHkAMYs';
 
-    $videoIds = array_map(function ($item) {
-        return $item['id']['videoId'];
-    }, $data['items']);
-
-    return $videoIds;
-}
-$apiKey = "AIzaSyDAJnMJrmKOQYGF5LJiGeABqSduc5uWJgE";
-$query = "TV_SHOW_NAME S01E01"; // Will eplace with the TV show name and the specific episode
-$videoIds = search_youtube($query, $apiKey);
-
-// videoIds to construct YouTube links 
-
-$apiKey = "AIzaSyDAJnMJrmKOQYGF5LJiGeABqSduc5uWJgE";
-
-// Fetch the TV shows from database
-$q = "SELECT * FROM tv_shows";
-$result = mysqli_query($connection, $q);
-
-// Loop through each TV show and fetch the episodes using the YouTube Data API
-while ($tv_show = mysqli_fetch_array($result, MYSQLI_ASSOC)) {
-    // Replace 'TV_SHOW_NAME' with the title of the TV show from database
-    $tv_show_name = $tv_show['title'];
-
-    // Fetch the episodes for each season
-    for ($season = 1; $season <= $tv_show['num_seasons']; $season++) {
-        for ($episode = 1; $episode <= $tv_show['num_episodes']; $episode++) {
-            $query = $tv_show_name . " S" . str_pad($season, 2, "0", STR_PAD_LEFT) . "E" . str_pad($episode, 2, "0", STR_PAD_LEFT);
-            $videoIds = search_youtube($query, $apiKey);
-
-            // Set the episode_number and episode_title variables
-            $episode_number = $episode;
-            $episode_title = $tv_show_name . " - Season " . $season . ", Episode " . $episode;
-
-$youtube_link = $videoIds[0]; // 
-
-$insert_query = "INSERT INTO episodes (tv_show_id, season, episode_number, title, youtube_link) VALUES (?, ?, ?, ?, ?)";
-$stmt = mysqli_prepare($connection, $insert_query);
-mysqli_stmt_bind_param($stmt, 'iiiss', $tv_show['id'], $season, $episode_number, $episode_title, $youtube_link);
-mysqli_stmt_execute($stmt);
-
-// Check if the insert was successful
-if (mysqli_stmt_affected_rows($stmt) == 1) {
-    echo "Episode $episode_number of season $season for '{$tv_show_name}' added successfully.\n";
-} else {
-    echo "Failed to add episode $episode_number of season $season for '{$tv_show_name}'.\n";
-}
+    function search_youtube($query, $api_key) {
+        $url = "https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=1&q=" . $query . "&key=" . $api_key;
+        
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        
+        $response_json = curl_exec($ch);
+        
+        if (curl_errno($ch)) {
+            echo 'Error: ' . curl_error($ch);
         }
+        
+        curl_close($ch);
+        
+        $response = json_decode($response_json, true);
+    
+        if (!isset($response['items'])) {
+            echo "Error: items not found in response. Response: ";
+            print_r($response);
+            return [];
+        }
+    
+        $video_ids = [];
+        foreach ($response['items'] as $item) {
+            $video_ids[] = $item['id']['videoId'];
+        }
+    
+        return $video_ids;
+    }
+    
+
+    function get_tv_show_title_by_id($id) {
+        // Replace this with your own database connection code
+        require('functionality/connect_db.php');
+
+        $id = mysqli_real_escape_string($connection, $id);
+        $q = "SELECT title FROM tv_shows WHERE id=$id";
+        $r = mysqli_query($connection, $q);
+
+        if ($r) {
+            if (mysqli_num_rows($r) == 1) {
+                $row = mysqli_fetch_array($r, MYSQLI_ASSOC);
+                return $row['title'];
+            }
+        }
+
+        return null;
+    }
+
+    function search_episodes($tv_show_id, $season, $episode, $api_key) {
+        $tv_show_title = get_tv_show_title_by_id($tv_show_id); // You need to implement this function
+        $query = urlencode($tv_show_title . ' season ' . $season . ' episode ' . $episode);
+        $video_ids = search_youtube($query, $api_key);
+
+        if (!empty($video_ids)) {
+            return array(
+                'season_number' => $season,
+                'episode_number' => $episode,
+                'video_id' => $video_ids[0]
+            );
+        }
+
+        return null;
+    }
+
+    // Fetch the season and episode numbers from the GET parameters
+    $season = $_GET['season'] ?? null;
+    $episode = $_GET['episode'] ?? null;
+    $tv_show_id = $_GET['tv_show_id'] ?? null; // Add this line
+
+    if ($tv_show_id === null || $season === null || $episode === null) {
+        echo "TV Show ID, season, or episode number not provided";
+        exit();
+    }
+
+    $search_result = search_episodes($tv_show_id, $season, $episode, $api_key);
+
+    if ($search_result !== null) {
+        echo "Season {$search_result['season_number']}, Episode {$search_result['episode_number']}: ";
+        echo "<iframe src='https://www.youtube.com/embed/{$search_result['video_id']}'></iframe>";
+    } else {
+        echo "Episode not found";
     }
 }
 ?>

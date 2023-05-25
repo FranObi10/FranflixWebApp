@@ -32,9 +32,7 @@ h6 {
 
 .navbar-brand img {
   height: 40px;
-  /* adjust */
   margin-right: 10px;
-  /* add some margin to the right ? */
 }
 
 .logo-img {
@@ -88,14 +86,45 @@ h6 {
 
 .member-star {
   color: #ffc107 !important;
+  margin-right: 15px;
 }
+
+button.btn.btn-outline-success.custom-button {
+  padding-right: 0.7rem!important; 
+  padding-left: 0.7rem;
+  width: fit-content!important;
+}
+
+button.btn.btn-outline-success.custom-button i.custom-icon {
+  margin-right: 0.2rem!important;
+}
+
 
 /*--------------------------------------------------------------
 # Navigation Menu
 --------------------------------------------------------------*/
 
-.navbar {
-  padding: 0;
+.navbar ul {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.search-form-li {
+  flex-grow: 1;
+  display: flex;
+  justify-content: flex-end;
+  padding-right: 10px;
+  margin-right: 100px;
+}
+
+.search-form-li .form-control{
+  width: auto;
+}
+
+.btn-outline-success{
+  background-color: #ea580c!important;
 }
 
 .navbar ul {
@@ -113,6 +142,10 @@ h6 {
 .navbar>ul>li {
   white-space: nowrap;
   padding: 10px 0 10px 22px;
+}
+
+.navbar a{
+  margin-right: 10px;
 }
 
 .navbar a,
@@ -166,7 +199,25 @@ h6 {
   color: #fff;
 }
 
+.navbar a:before {
+  content: "";
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: -6px;
+  left: 0;
+  background-color: #ea580c;
+  transition: all 0.3s ease-in-out 0s;
+}
+
+.navbar a.active:before,
+.navbar a:hover:before {
+  width: 100%;
+}
+
+
 /* Buttons Login and Sign Up */
+
 .navbar .login,
 .navbar .login:focus {
   padding: 8px 25px;
@@ -186,8 +237,8 @@ h6 {
   border: 2px solid #ea580c;
 }
 
-.navbar .getstarted,
-.navbar .getstarted:focus {
+.navbar .register,
+.navbar .register:focus {
   padding: 8px 25px;
   margin-left: 12px;
   border-radius: 4px;
@@ -197,20 +248,24 @@ h6 {
   border: 2px solid #ea580c;
 }
 
-.navbar .getstarted:hover,
-.navbar .getstarted:focus:hover {
+.navbar .register:hover,
+.navbar .register:focus:hover {
   color: #fff;
   background: #ea580c;
 }
 
-.navbar .getstarted:hover:before,
-.navbar li:hover>.getstarted:before {
+.navbar .register:hover:before,
+.navbar li:hover>.register:before {
   visibility: hidden;
 }
 
 .navbar .login:hover:before,
 .navbar li:hover>.login:before {
   visibility: hidden;
+}
+
+.navbar .login:before, .register:before {
+  display: none;
 }
 
 .navbar .dropdown ul {
@@ -281,6 +336,7 @@ h6 {
 /* Name next to logo*/
 .navbar li.user-name a.nav-link {
   font-size: 20px !important;
+  margin-left: 30px;
 }
 
 .navbar .user-name-link:hover {
@@ -319,6 +375,9 @@ h6 {
   font-weight: bold;
 }
 
+
+
+
 /*--------------------------------------------------------------
 # LOGIN 
 --------------------------------------------------------------*/
@@ -338,8 +397,9 @@ body {
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: all 0.5s
+  transition: all 0.5s;
 }
+
 
 .card1:hover {
   transform: scale(1.1)
@@ -396,29 +456,18 @@ body {
   font-weight: bold;
   margin-left: 10px
 }
-
+ 
 .text2 span {
-  font-weight: 500;
+  font-weight: normal;
   color: #7a7778
 }
 
-.text2 .register {
-  color: #4f4942;
-  font-weight: bold
-}
-
-.text2 span {
-  font-weight: 500;
-  color: #7a7778
-}
-
-.form-control+span {
+form span {
   font-size: 12px;
   color: #cecdcd;
   margin-top: 10px;
   display: block;
 }
-
 
 ::placeholder {
   font-size: 13px;
@@ -450,8 +499,9 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
 }
+
 
 .card2 .image {
   height: 100%;
@@ -526,15 +576,29 @@ body {
 
 .movie-details {
   margin-bottom: 30px;
+  margin-top: 30px;
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  color: #fff;
+  padding: 20px;
+  font-size: 18px;
+  z-index: 2;
+
 }
 
 .movie-details h1 {
-  font-size: 42px;
+  font-size: 30px;
   margin-bottom: 10px;
 }
 
 .movie-details p {
   font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.movie-details h5 {
+  font-size: 14px;
   margin-bottom: 10px;
 }
 
@@ -547,7 +611,7 @@ body {
   text-decoration: none;
   display: inline-block;
   font-size: 16px;
-  margin: 4px 2px;
+  margin: 3px 2px;
   cursor: pointer;
   border-radius: 4px;
 }
@@ -575,6 +639,37 @@ body {
   top: 0;
   left: 0;
 }
+
+.video-overlay-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.image-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.image-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.image-wrapper::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0) 100%);
+  z-index: 1;
+}
+
 
 
 
@@ -715,8 +810,8 @@ body {
   visibility: hidden;
 }
 
-.navbar-mobile .getstarted,
-.navbar-mobile .getstarted:focus {
+.navbar-mobile .register,
+.navbar-mobile .register:focus {
   margin: 15px;
   color: #5c9f24;
   padding-left: 15px;

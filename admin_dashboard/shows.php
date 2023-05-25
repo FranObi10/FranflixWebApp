@@ -1,19 +1,26 @@
 <?php
-session_start();
-$page_title = 'Shows Dashboard';
+# Access session.
+session_start() ;
+
+# Set page title and display header section.
+$page_title = 'Admin Dashboard' ;
 
 #include ( 'includes/logout.html' ) ;
 include ( '../includes/admin_header.html' ) ;
 
-if (!isset($_SESSION['user_id'])) {
+# Redirect if not logged in or not an admin.
+if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] != 'admin') {
     require('../functionality/login_tools.php');
     load();
 }
 
+# Open database connection.
 require('../functionality/connect_db.php');
 ?>
 
 <body>
+    <div id="alert-container"></div>
+
     <div class="d-flex" id="wrapper">
         <!-- Sidebar -->
         <div class="bg-white" id="sidebar-wrapper">
@@ -30,11 +37,12 @@ require('../functionality/connect_db.php');
                         class="fa-solid fa-film"></i> Shows</a>
                 <a href="#" class="list-group-item list-group-item-action bg-transparent second-text fw-bold"><i
                         class="fas fa-shopping-cart me-2"></i>Memberships</a>
-                <a href="#" class="list-group-item list-group-item-action bg-transparent text-danger fw-bold"><i
+                <a href="../logout.php" class="list-group-item list-group-item-action bg-transparent text-danger fw-bold"><i
                         class="fas fa-power-off me-2"></i>Logout</a>
             </div>
         </div>
-        <!-- sidebar-wrapper -->
+        <!-- /#sidebar-wrapper -->
+
 
         <!-- Page Content -->
         <div id="page-content-wrapper">
@@ -51,7 +59,7 @@ require('../functionality/connect_db.php');
                 </button>
 
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0 justify-content-end">
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle second-text fw-bold" href="#" id="navbarDropdown"
                                 role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -59,7 +67,7 @@ require('../functionality/connect_db.php');
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                                 <li><a class="dropdown-item" href="../home.php">Home</a></li>
-                                <li><a class="dropdown-item" href="logout.php">Logout</a></li>
+                                <li><a class="dropdown-item" href="../logout.php">Logout</a></li>
                             </ul>
                         </li>
                     </ul>
@@ -144,6 +152,17 @@ require('../functionality/connect_db.php');
 
                 <!-- Shows table -->
                 <div class="row my-5">
+
+                    <?php
+if (isset($_GET['deleted']) && $_GET['deleted'] === 'true') {
+?>
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        Show deleted successfully!
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    <?php
+}
+?>
                     <h3 class="fs-4 mb-3">Shows</h3>
                     <div class="col">
                         <table class="table bg-white rounded shadow-sm table-hover">
@@ -165,8 +184,9 @@ require('../functionality/connect_db.php');
                         <td>' . $row['category'] . '</td>
                         <td>' . ucwords(str_replace('_', ' ', $row['type'])) . '</td>
                         <td>
-                            <a href="edit_show.php?id=' . $row['id'] . '&type=' . $row['type'] . '">Edit</a> |
-                            <a href="delete_show.php?id=' . $row['id'] . '&type=' . $row['type'] . '">Delete</a>
+                        <a href="#" class="edit-link" data-bs-toggle="modal" data-bs-target="#editShowModal" data-show-id="' . $row['id'] . '" data-show-type="' . $row['type'] . '">Edit</a>
+                        <a href="delete_show.php?id=' . $row['id'] . '&type=' . $row['type'] . '" class="delete-link">Delete</a>
+                        
                         </td>
                     </tr>';
                 }
@@ -175,6 +195,29 @@ require('../functionality/connect_db.php');
                         </table>
                     </div>
                 </div>
+
+                <!-- Edit Show Modal -->
+                <div class="modal fade" id="editShowModal" tabindex="-1" aria-labelledby="editShowModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="editShowModalLabel">Edit Show</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body" id="editShowModalBody">
+                                <!-- The edit form caricata qua con JavaScript -->
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-primary" id="saveChangesButton">Save
+                                    changes</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
 
                 <!-- Add Movie Modal -->
                 <div class="modal fade" id="addMovieModal" tabindex="-1" role="dialog"
@@ -187,7 +230,7 @@ require('../functionality/connect_db.php');
                                     <span aria-hidden="true">&times;</span>
                                 </button>
                             </div>
-                            <form action="add_movie.php" method="post" enctype="multipart/form-data">
+                            <form id="addMovieForm" action="add_movie.php" method="post" enctype="multipart/form-data">
                                 <div class="modal-body">
                                     <!-- Movie form inputs -->
                                     <label for="movie_title">Title</label>
@@ -211,7 +254,8 @@ require('../functionality/connect_db.php');
 
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="submit" class="btn btn-primary">Save changes</button>
+                                    <button type="button" class="btn btn-primary" onclick="submitMovieForm()">Save
+                                        changes</button>
                                     <button type="button" class="btn btn-secondary"
                                         data-bs-dismiss="modal">Close</button>
                                 </div>
@@ -231,7 +275,8 @@ require('../functionality/connect_db.php');
                                     <span aria-hidden="true">&times;</span>
                                 </button>
                             </div>
-                            <form action="add_tv_show.php" method="post" enctype="multipart/form-data">
+                            <form id="addTVShowForm" action="add_tv_show.php" method="post"
+                                enctype="multipart/form-data">
                                 <div class="modal-body">
                                     <!-- TV Show form inputs -->
                                     <label for="tv_show_title">Title</label>
@@ -256,12 +301,10 @@ require('../functionality/connect_db.php');
                                     <label for="tv_show_num_episodes">Number of Episodes</label>
                                     <input type="number" name="num_episodes" id="tv_show_num_episodes"
                                         class="form-control">
-                                    <label for="tv_show_youtube_link">YouTube Link</label>
-                                    <input type="text" name="youtube_link" id="tv_show_youtube_link"
-                                        class="form-control">
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="submit" class="btn btn-primary">Save changes</button>
+                                    <button type="button" class="btn btn-primary" onclick="submitTVShowForm()">Save
+                                        changes</button>
                                     <button type="button" class="btn btn-secondary"
                                         data-bs-dismiss="modal">Close</button>
                                 </div>
@@ -271,7 +314,7 @@ require('../functionality/connect_db.php');
                 </div>
 
 
-        <!-- JS Scripts -->
+                <!-- JS Scripts -->
                 <script>
                 var el = document.getElementById("wrapper");
                 var toggleButton = document.getElementById("menu-toggle");
@@ -279,9 +322,7 @@ require('../functionality/connect_db.php');
                 toggleButton.onclick = function() {
                     el.classList.toggle("toggled");
                 };
-                </script>
 
-                <script>
                 function submitMovieForm() {
                     const form = document.getElementById("addMovieForm");
                     const formData = new FormData(form);
@@ -292,7 +333,21 @@ require('../functionality/connect_db.php');
                         })
                         .then(response => response.text())
                         .then(data => {
-                            console.log(data);
+                            // Display a Bootstrap alert on success
+                            const alertContainer = document.getElementById("alert-container");
+                            const alertHTML = `
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+    Movie added successfully!
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>`;
+
+                            alertContainer.innerHTML = alertHTML;
+
+                            // Close the modal and reset the form
+                            const addMovieModal = bootstrap.Modal.getInstance(document.getElementById(
+                                "addMovieModal"));
+                            addMovieModal.hide();
+                            form.reset();
                         })
                         .catch(error => {
                             console.error("Error:", error);
@@ -309,18 +364,75 @@ require('../functionality/connect_db.php');
                         })
                         .then(response => response.text())
                         .then(data => {
-                            console.log(data);
+                            // Display a Bootstrap alert on success
+                            const alertContainer = document.getElementById("alert-container");
+                            const alertHTML = `
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+    TV show added successfully!
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>`;
+
+                            alertContainer.innerHTML = alertHTML;
+
+                            // Close the modal and reset the form
+                            const addTvShowModal = bootstrap.Modal.getInstance(document.getElementById(
+                                "addTvShowModal"));
+                            addTvShowModal.hide();
+                            form.reset();
                         })
                         .catch(error => {
                             console.error("Error:", error);
                         });
                 }
+
+                document.getElementById('addMovieModal').addEventListener('hidden.bs.modal', () => {
+                    const backdrop = document.querySelector('.modal-backdrop');
+                    if (backdrop) {
+                        backdrop.remove();
+                    }
+                });
+
+                document.getElementById('addTvShowModal').addEventListener('hidden.bs.modal', () => {
+                    const backdrop = document.querySelector('.modal-backdrop');
+                    if (backdrop) {
+                        backdrop.remove();
+                    }
+                });
+
+                // Per modale EDIT SHOW
+                document.addEventListener('DOMContentLoaded', function() {
+                    var editShowModal = document.getElementById('editShowModal');
+                    editShowModal.addEventListener('show.bs.modal', function(event) {
+                        // Get the show ID and type from the Edit link
+                        var editButton = event.relatedTarget;
+                        var showId = editButton.getAttribute('data-show-id');
+                        var showType = editButton.getAttribute('data-show-type');
+
+                        // Load edit form for the show
+                        var xhttp = new XMLHttpRequest();
+                        xhttp.onreadystatechange = function() {
+                            if (this.readyState === 4 && this.status === 200) {
+                                document.getElementById('editShowModalBody').innerHTML = this
+                                    .responseText;
+                            }
+                        };
+                        xhttp.open("GET", "load_edit_form.php?id=" + showId + "&type=" + showType,
+                            true);
+                        xhttp.send();
+                    });
+                });
+
+                document.getElementById('saveChangesButton').addEventListener('click', function() {
+                    document.querySelector('#editShowModal .modal-body form').submit();
+                });
                 </script>
+
+
 
 
 </body>
 
 
 <?php
-include('../includes/footer.html');
+include('../includes/admin_footer.html');
 ?>

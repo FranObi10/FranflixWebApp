@@ -32,6 +32,27 @@ $tv_shows_count = mysqli_fetch_assoc($tv_shows_result)['count'];
 $users_query = "SELECT COUNT(*) as count FROM users";
 $users_result = mysqli_query($connection, $users_query);
 $users_count = mysqli_fetch_assoc($users_result)['count'];
+
+# Query to get the most liked shows in the table
+$sql = "SELECT ul.id, ul.movie_id, ul.content_type, COALESCE(m.title, tv.title) as title, COUNT(ul.movie_id) as total_likes
+FROM user_likes ul
+LEFT JOIN movies m ON ul.movie_id = m.id AND ul.content_type = 'movie'
+LEFT JOIN tv_shows tv ON ul.movie_id = tv.id AND ul.content_type = 'tv_show'
+GROUP BY ul.movie_id, ul.content_type
+ORDER BY total_likes DESC
+LIMIT 10";
+
+$result = $connection->query($sql);
+
+$liked_shows = [];
+
+if ($result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $liked_shows[] = $row;
+    }
+} else {
+    echo "0 results";
+}
 ?>
 
 
@@ -52,7 +73,7 @@ $users_count = mysqli_fetch_assoc($users_result)['count'];
                         class="fa-solid fa-film"></i> Shows</a>
                 <a href="#" class="list-group-item list-group-item-action bg-transparent second-text fw-bold"><i
                         class="fas fa-shopping-cart me-2"></i>Memberships</a>
-                <a href="#" class="list-group-item list-group-item-action bg-transparent text-danger fw-bold"><i
+                <a href="../logout.php" class="list-group-item list-group-item-action bg-transparent text-danger fw-bold"><i
                         class="fas fa-power-off me-2"></i>Logout</a>
             </div>
         </div>
@@ -73,7 +94,7 @@ $users_count = mysqli_fetch_assoc($users_result)['count'];
                 </button>
 
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0 justify-content-end">
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle second-text fw-bold" href="#" id="navbarDropdown"
                                 role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -81,7 +102,7 @@ $users_count = mysqli_fetch_assoc($users_result)['count'];
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                                 <li><a class="dropdown-item" href="../home.php">Home</a></li>
-                                <li><a class="dropdown-item" href="logout.php">Logout</a></li>
+                                <li><a class="dropdown-item" href="../logout.php">Logout</a></li>
                             </ul>
                         </li>
                     </ul>
@@ -120,96 +141,36 @@ $users_count = mysqli_fetch_assoc($users_result)['count'];
                         </div>
                     </div>
 
-        <!-- Substitute this table with my database content -->
+                    <!-- Substitute this table with my database content -->
                     <div class="row my-5">
-                        <h3 class="fs-4 mb-3">Recent Orders</h3>
+                        <h3 class="fs-4 mb-3">Most Liked Shows</h3>
                         <div class="col">
                             <table class="table bg-white rounded shadow-sm  table-hover">
                                 <thead>
                                     <tr>
                                         <th scope="col" width="50">#</th>
-                                        <th scope="col">Product</th>
-                                        <th scope="col">Customer</th>
-                                        <th scope="col">Price</th>
+                                        <th scope="col">Movie ID</th>
+                                        <th scope="col">Content Type</th>
+                                        <th scope="col">Title</th>
+                                        <th scope="col">Total Likes</th>
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    <?php foreach ($liked_shows as $index => $liked_show): ?>
                                     <tr>
-                                        <th scope="row">1</th>
-                                        <td>Television</td>
-                                        <td>Jonny</td>
-                                        <td>$1200</td>
+                                        <th scope="row"><?php echo $index + 1; ?></th>
+                                        <td><?php echo $liked_show['movie_id']; ?></td>
+                                        <td><?php echo ucfirst($liked_show['content_type']); ?></td>
+                                        <td><?php echo $liked_show['title']; ?></td>
+                                        <td><?php echo $liked_show['total_likes']; ?></td>
                                     </tr>
-                                    <tr>
-                                        <th scope="row">2</th>
-                                        <td>Laptop</td>
-                                        <td>Kenny</td>
-                                        <td>$750</td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">3</th>
-                                        <td>Cell Phone</td>
-                                        <td>Jenny</td>
-                                        <td>$600</td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">4</th>
-                                        <td>Fridge</td>
-                                        <td>Killy</td>
-                                        <td>$300</td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">5</th>
-                                        <td>Books</td>
-                                        <td>Filly</td>
-                                        <td>$120</td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">6</th>
-                                        <td>Gold</td>
-                                        <td>Bumbo</td>
-                                        <td>$1800</td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">7</th>
-                                        <td>Pen</td>
-                                        <td>Bilbo</td>
-                                        <td>$75</td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">8</th>
-                                        <td>Notebook</td>
-                                        <td>Frodo</td>
-                                        <td>$36</td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">9</th>
-                                        <td>Dress</td>
-                                        <td>Kimo</td>
-                                        <td>$255</td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">10</th>
-                                        <td>Paint</td>
-                                        <td>Zico</td>
-                                        <td>$434</td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">11</th>
-                                        <td>Carpet</td>
-                                        <td>Jeco</td>
-                                        <td>$1236</td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">12</th>
-                                        <td>Food</td>
-                                        <td>Haso</td>
-                                        <td>$422</td>
-                                    </tr>
+                                    <?php endforeach; ?>
                                 </tbody>
+
                             </table>
                         </div>
                     </div>
+
 
                 </div>
             </div>
@@ -229,6 +190,6 @@ $users_count = mysqli_fetch_assoc($users_result)['count'];
 
     <?php
 
-include('../includes/footer.html');
+include('../includes/admin_footer.html');
 
 ?>

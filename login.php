@@ -10,6 +10,11 @@ session_start(); // Add this line to start a session
 # Set page title and display header section.
 $page_title = 'Login';
 
+if (isset($_SESSION['login_error'])) {
+    $errors = $_SESSION['login_error'];
+    unset($_SESSION['login_error']);
+}
+
 #include ( 'includes/logout.html' ) ;
 include('includes/header_landing_page.html');
 
@@ -47,9 +52,8 @@ if (isset($errors) && !empty($errors)) {
 }
 ?>
 
-
 <div class="container mt-5 mb-5">
-    <div class="d-flex flex row g-0">
+    <div class="d-flex flex-row g-0">
         <div class="col-md-6 mt-3">
             <div class="card card1 p-3">
                 <div class="d-flex flex-column">
@@ -68,8 +72,9 @@ if (isset($errors) && !empty($errors)) {
                         <div class="mt-3 text1">
                             <span class="mt-3 forget"><a href="reset_password.php">Forgot password?</a></span>
                         </div>
-                        <div class="text2 mt-4 d-flex flex-row align-items-center">
-                            <span>Don't have an account?<span class="register.php">Register here</span></span>
+                        <div class="mt-4 d-flex align-items-center">
+                            <span class="me-2">Don't have an account?</span>
+                            <span class="register"><a href="register.php">Register here</a></span>
                         </div>
                     </div>
                 </form>
@@ -82,9 +87,9 @@ if (isset($errors) && !empty($errors)) {
                 </div>
             </div>
         </div>
-
     </div>
 </div>
+
 
 
 <?php

@@ -11,6 +11,8 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
+$is_member = false;  // Initialize $is_member to false.
+
 # Open database connection.
 require(__DIR__ . '/../functionality/connect_db.php');
 
@@ -25,11 +27,10 @@ if (isset($_SESSION['user_id'])) {
     $logo_id = $row['logo_id'];
     $user_first_name = $row['first_name'];
     // check if user is member
-    $is_member = false;
     $membership_status = $row['membership_status'];
     if ($membership_status == 'active') {
-    $is_member = true;
-}
+        $is_member = true;
+    }
 
     if (isset($logo_id)) {
         // get the logo URL from the logos table
@@ -44,11 +45,13 @@ function setActiveClass($requestUri)
 {
     $current_file_name = basename($_SERVER['REQUEST_URI'], ".php");
 
-    if ($current_file_name == $requestUri)
+    if ($current_file_name == $requestUri) {
         echo 'class="nav-link scrollto active"';
-    else
+    } else {
         echo 'class="nav-link scrollto"';
+    }
 }
+
 
 ?>
 
@@ -108,48 +111,78 @@ function setActiveClass($requestUri)
     <header id="header" class="sticky-top d-flex align-items-center">
         <div class="container d-flex align-items-center justify-content-between">
             <h1 class="logo"><a href="home.php">Franflix</a></h1>
-            <!-- <a href="index.html" class="logo"><img src="assets/img/logo.png" alt="" class="img-fluid"></a>-->
 
             <nav id="navbar" class="navbar">
-                <ul>
-                    <li><a <?php setActiveClass('home'); ?> href="home.php">Home</a></li>
-                    <li><a <?php setActiveClass('movies'); ?> href="movies.php">Movies</a></li>
-                    <li><a <?php setActiveClass('tv_shows'); ?> href="tv_shows.php">Tv Shows</a></li>
-                    <li><a <?php setActiveClass('membership'); ?> href="join_membership.php">Membership</a></li>
-
-                    <li class="user-name">
-                        <?php if (isset($user_first_name)) : ?>
-                        <a class="nav-link scrollto user-name-link" href="#"><?php echo $user_first_name; ?></a>
+                <ul class="d-flex align-items-center">
+                    <li class="search-form-li">
+                        <form class="search-form d-flex" role="search" action="functionality/search.php" method="GET"
+                            id="search-form">
+                            <input class="form-control me-2" type="search" name="search" placeholder="Search"
+                                aria-label="Search">
+                            <button class="btn btn-outline-success custom-button" type="submit">
+                                <i class="fas fa-search custom-icon"></i>
+                            </button>
+                        </form>
+                    </li>
+                    <ul>
+                        <li><a <?php setActiveClass('home'); ?> href="home.php">Home</a></li>
+                        <li><a <?php setActiveClass('movies'); ?> href="movies.php">Movies</a></li>
+                        <li><a <?php setActiveClass('tv_shows'); ?> href="tv_shows.php">Tv Shows</a></li>
+                        <?php if (!$is_member) : ?>
+                        <li><a <?php setActiveClass('membership'); ?> href="join_membership.php">Membership</a></li>
                         <?php endif; ?>
-                    </li>
-                    <?php if ($is_member) : ?>
-                    <li class="nav-item">
-                        <span class="nav-link">
-                            <i class="fas fa-star member-star"></i>
-                        </span>
-                    </li>
-                    <?php endif; ?>
-                    <?php if (isset($_SESSION['user_id'])) : ?>
-                    <li class="dropdown">
-                        <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button"
-                            data-bs-toggle="dropdown" aria-expanded="false">
-                            <?php if(isset($logo_url)) { ?>
-                            <img src="<?php echo $logo_url; ?>" alt="User Logo" class="user-logo logo-img">
-                            <?php } else { ?>
-                            <i class="fas fa-user"></i>
-                            <?php } ?>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                            <li><a class="dropdown-item" href="user_dashboard.php">Manage Account</a>
-                            </li>
-                            <li><a class="dropdown-item" href="logout.php">Logout</a></li>
-                        </ul>
-                    </li>
-                    <?php endif; ?>
-                </ul>
+                        <li class="user-name">
+                            <?php if (isset($user_first_name)) : ?>
+                            <a class="nav-link scrollto user-name-link" href="#"><?php echo $user_first_name; ?></a>
+                            <?php endif; ?>
+                        </li>
+                        <?php if ($is_member) : ?>
+                        <li class="nav-item">
+                            <span class="nav-link">
+                                <i class="fas fa-star member-star"></i>
+                            </span>
+                        </li>
+                        <?php endif; ?>
+                        <?php if (isset($_SESSION['user_id'])) : ?>
+                        <li class="dropdown">
+                            <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                                <?php if(isset($logo_url)) { ?>
+                                <img src="<?php echo $logo_url; ?>" alt="User Logo" class="user-logo logo-img">
+                                <?php } else { ?>
+                                <i class="fas fa-user"></i>
+                                <?php } ?>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                <li><a class="dropdown-item" href="user_dashboard.php">Manage Account</a>
+                                </li>
+                                <li><a class="dropdown-item" href="logout.php">Logout</a></li>
+                            </ul>
+                        </li>
+                        <?php endif; ?>
+                    </ul>
             </nav><!-- .navbar -->
         </div>
     </header>
+
+    <?php
+    if (isset($_SESSION['search_error'])) {
+        echo '<div class="alert alert-warning alert-dismissible fade show mx-5 mt-2" role="alert">
+                ' . $_SESSION['search_error'] . '
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>';
+        unset($_SESSION['search_error']);
+    }
+    ?>
+
+    <script>
+    document.getElementById("search-form").addEventListener("submit", function(event) {
+        const searchInput = document.querySelector("input[name='search']");
+        if (searchInput.value.trim() === "") {
+            event.preventDefault();
+        }
+    });
+    </script>
 
     <!-- End Header -->
 

@@ -58,7 +58,7 @@ if (empty($errors)) {
   $q = "SELECT user_id FROM users WHERE email='$e'";
   $r = mysqli_query($connection, $q);
   if (mysqli_num_rows($r) != 0) {
-    $errors[] = 'Email address already registered. <a class="alert$connection" href="login.php">Sign In Now</a>';
+    $errors[] = 'Email address already registered. <a class="alert" href="login.php">Sign In Now</a>';
   }
 }
   # Get the selected logo id
@@ -103,44 +103,60 @@ echo '<p>Please try again.</p>
         <div class="col-md-6">
             <div class="card p-3">
                 <div class="d-flex flex-column">
-                    <span class="form-title mt-3">Sign Up</span>
+                    <span class="form-title mt-3">Register Here</span>
                 </div>
                 <form action="register.php" method="post" class="d-flex flex-column mt-3">
-                    <span class="mt-3">First Name</span>
-                    <input type="text" name="first_name" class="form-control" placeholder="Enter your first name"
-                        value="<?php if (isset($_POST['first_name'])) echo $_POST['first_name']; ?>">
-                    <span class="mt-3">Last Name</span>
-                    <input type="text" name="last_name" class="form-control" placeholder="Enter your last name"
-                        value="<?php if (isset($_POST['last_name'])) echo $_POST['last_name']; ?>">
-                    <span>Email</span>
-                    <input type="text" name="email" class="form-control" placeholder="Enter your email address"
-                        value="<?php if (isset($_POST['email'])) echo $_POST['email']; ?>">
-                    <span class="mt-3">Password</span>
-                    <input type="password" name="pass1" class="form-control" placeholder="Choose a password">
-                    <span class="mt-3">Re-type Password</span>
-                    <input type="password" name="pass2" class="form-control" placeholder="Confirm the password">
-                    <span class="mt-3">Select a logo</span>
-                    <?php
-            # Retrieve logos from the logos table.
-            $q = "SELECT * FROM logos";
-            $r = mysqli_query($connection, $q);
-          ?>
-                    <div class="row">
-                        <?php while ($logo = mysqli_fetch_array($r, MYSQLI_ASSOC)) { ?>
-                        <div class="col-md-3">
-                            <input type="radio" name="logo_id" value="<?php echo $logo['logo_id']; ?>"
-                                required="required">
-                            <img src="<?php echo $logo['logo_url']; ?>" alt="<?php echo $logo['logo_name']; ?>"
-                                height="100">
-                        </div>
-                        <?php } ?>
+                    <div class="input-field d-flex flex-column mt-3">
+                        <span>First Name</span>
+                        <input type="text" name="first_name" class="form-control" placeholder="Enter your first name"
+                            value="<?php if (isset($_POST['first_name'])) echo $_POST['first_name']; ?>">
                     </div>
+                    <div class="input-field d-flex flex-column mt-3">
+                        <span>Last Name</span>
+                        <input type="text" name="last_name" class="form-control" placeholder="Enter your last name"
+                            value="<?php if (isset($_POST['last_name'])) echo $_POST['last_name']; ?>">
+                    </div>
+                    <div class="input-field d-flex flex-column mt-3">
+                        <span>Email</span>
+                        <input type="text" name="email" class="form-control" placeholder="Enter your email address"
+                            value="<?php if (isset($_POST['email'])) echo $_POST['email']; ?>">
+                    </div>
+                    <div class="input-field d-flex flex-column mt-3">
+                        <span>Password</span>
+                        <input type="password" name="pass1" class="form-control" placeholder="Choose a password">
+                    </div>
+                    <div class="input-field d-flex flex-column mt-3">
+                        <span>Re-type Password</span>
+                        <input type="password" name="pass2" class="form-control" placeholder="Confirm the password">
+                    </div>
+                    <div class="input-field d-flex flex-column mt-3">
+                        <span>Select a logo</span>
+                        <?php
+        # Retrieve logos from the logos table.
+        $q = "SELECT * FROM logos";
+        $r = mysqli_query($connection, $q);
+    ?>
+                        <div class="row">
+                            <?php while ($logo = mysqli_fetch_array($r, MYSQLI_ASSOC)) { ?>
+                            <div class="col-md-3">
+                                <input type="radio" name="logo_id" value="<?php echo $logo['logo_id']; ?>"
+                                    required="required">
+                                <img src="<?php echo $logo['logo_url']; ?>" alt="<?php echo $logo['logo_name']; ?>"
+                                    height="100">
+                            </div>
+                            <?php } ?>
+                        </div>
+                    </div>
+
                     <button type="submit"
                         class="mt-3 btn btn-dark d-flex justify-content-center align-items-center">Register</button>
-                    <div class="text2 mt-4 d-flex flex-row align-items-center"></div>
-                    <span>Already have an account?<span class="register"><a href="login.php"> Log in
-                                here</a></span></span>
+                    <div class="mt-4 d-flex align-items-center">
+                        <span class="me-2">Already have an account?</span>
+                        <span class="login"><a href="login.php">Log in here</a></span>
+                    </div>
                 </form>
+
+
             </div>
         </div>
         <div class="col-md-3"></div>

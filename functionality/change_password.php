@@ -1,11 +1,4 @@
-<!-- /**
-This script updates the password of a user in the database. It first checks if the new password and confirm password
-fields match. If they do, it hashes the new password and updates the password field in the database for the user with
-the given user_id. It then returns a JSON response indicating whether the update was successful or not.
 
-* @Francesca Obino
-* @Franflix WebApp
-*/ -->
 <?php
 session_start();
 
@@ -41,6 +34,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             $response = array('status' => 'error', 'message' => 'Failed to update password!');
         }
+    } else {
+        // Send an error response when the new password and confirm password do not match
+        $response = array('status' => 'error', 'message' => 'New password and confirm password do not match!');
     }
 
     // Send JSON response

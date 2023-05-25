@@ -5,6 +5,8 @@
 * @Franflix WebApp
 */ -->
 <?php
+session_start();
+
 # Check form submitted.
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     # Open database connection.
@@ -12,6 +14,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     # Get connection, load, and validate functions.
     require('login_tools.php');
+
+
+    # Check if the user is blocked.
+$blocked = isUserBlocked($connection, $_POST['email']);
+if ($blocked) {
+    $_SESSION['login_error'] = ["Your profile has been blocked. Please contact customer service for further assistance."];
+    header('Location: ../login.php');
+    exit();
+}
 
     # Check if the user is an admin.
     $required_role = '';
@@ -41,14 +52,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
     # Or on failure set errors.
     else {
-        $errors = $data;
+        $_SESSION['login_error'] = $data;
+        header('Location: ../login.php');
+        exit();
     }
 
     # Close database connection.
     mysqli_close($connection);
 }
-
-# Continue to display login page on failure.
-include('login.php');
-
 ?>

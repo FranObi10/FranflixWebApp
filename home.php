@@ -8,36 +8,140 @@ button. It includes the header, footer, and logout HTML files.
 * @Franflix WebApp
 */ -->
 <?php
-
 # Access session.
-session_start() ;
+session_start();
 
 # Set page title and display header section.
-$page_title = 'Home' ;
+$page_title = 'Home';
 
-# Connect to database
+# Connect to the database
 require('functionality/connect_db.php');
 
 if ($connection->connect_error) {
     die("Connection failed: " . $connection->connect_error);
 }
 
-#include ( 'includes/logout.html' ) ;
-include ( 'includes/header.php' ) ;
+# Include the header
+include('includes/header.php');
 
-// Fetch movie data from the database
+// Fetch movie data from the database for carousel
 $sql = "SELECT * FROM carousel_movies";
 $result = $connection->query($sql);
 
 $movies = [];
 if ($result->num_rows > 0) {
-while ($row = $result->fetch_assoc()) {
-$movies[] = $row;
-}
+    while ($row = $result->fetch_assoc()) {
+        $movies[] = $row;
+    }
 } else {
-echo "0 results";
+    echo "0 results";
 }
 ?>
+
+<style>
+.text-left {
+    color: #fff;
+    font-size: 1.5rem;
+}
+
+.carousel-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 50%;
+    background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 1));
+}
+
+.movie-container {
+    width: 300px;
+    height: auto;
+    overflow: hidden;
+}
+
+.movie-image {
+    width: 100%;
+    height: 200px;
+    display: block;
+}
+
+/* Coming soon text */
+@keyframes dotAnimation {
+    0% {
+        opacity: 0.1;
+        transform: scale(0.8);
+    }
+
+    50% {
+        opacity: 0.8;
+        transform: scale(1.2);
+    }
+
+    100% {
+        opacity: 0.3;
+        transform: scale(0.8);
+    }
+}
+
+.dot-animation {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background-color: #fff;
+    border-radius: 50%;
+    margin-left: 5px;
+    opacity: 1;
+    animation: dotAnimation 1.5s infinite;
+}
+
+.dot-animation:nth-child(2) {
+    animation-delay: 0.5s;
+}
+
+.dot-animation:nth-child(3) {
+    animation-delay: 1s;
+}
+
+.carousel-text {
+    position: absolute;
+    bottom: 20px;
+    right: 50px;
+    text-align: right;
+}
+
+.carousel-text h2 {
+    color: #fff;
+    opacity: 1;
+    font-size: 10px;
+}
+
+
+/* Text for non registered user */
+.join-membership-text {
+    font-size: 40px;
+}
+
+.join-membership-text {
+    animation: pulsate 2s infinite;
+}
+
+@keyframes pulsate {
+    0% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.5;
+        transform: scale(1.1);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+</style>
 
 <!-- ======= Hero Section ======= -->
 <section id="hero">
@@ -60,10 +164,14 @@ echo "0 results";
                     <div class="carousel-container">
                         <div class="carousel-content">
                             <?php if (!$is_member) { ?>
+                            <div class="text-center mb-3">
+                                <p class="join-membership-text">Join Our membership to have unlimited access to the
+                                    catalog</p>
+                            </div>
                             <div>
                                 <a href="join_membership.php"
                                     class="btn-get-started animate__animated animate__fadeInUp scrollto">JOIN
-                                    MEMBERSHIP</a>
+                                    NOW</a>
                             </div>
                             <?php } ?>
 
@@ -87,50 +195,102 @@ echo "0 results";
     </div>
 </section><!-- End Hero -->
 
-
 <main id="main">
 
-    <?php
-  # Get all categories
-  $q = "SELECT DISTINCT category FROM movies ORDER BY category ASC" ;
-  $r = mysqli_query($connection, $q) ;
-
-  while ($cat = mysqli_fetch_array($r, MYSQLI_ASSOC)) {
-
-    # Get movies for this category
-    $q = "SELECT * FROM movies WHERE category='{$cat['category']}' ORDER BY title ASC" ;
-    $r2 = mysqli_query($connection, $q) ;
-
-    if (mysqli_num_rows($r2) > 0) {
-      ?>
-
+    <!-- The Most liked -->
     <div class="container my-5">
-        <h1 class="text-left fw-bold display-1 mb-5"><?= $cat['category'] ?></h1>
+        <h3 class="text-left fw-bold display-1 mb-5">Recommended by Users</h3>
         <div class="row owl-carousel owl-theme">
             <?php
-        while ($movie = mysqli_fetch_array($r2, MYSQLI_ASSOC)) {
-        ?>
-            <div class="col-lg-12 col-md-12 mb-6 movie-container">
-                <img src="assets/img/img_movies/<?= $movie['image'] ?>" alt="" class="img-fluid movie-image">
-            </div>
+        # Get 10 most liked shows from both movies and tv_shows
+        $q = "SELECT * FROM (
+            (SELECT movies.*, 'movie' as show_type, COUNT(user_likes.id) as num_likes
+             FROM movies
+             LEFT JOIN user_likes ON movies.id = user_likes.movie_id
+             GROUP BY movies.id
+             ORDER BY num_likes DESC LIMIT 5)
+            UNION
+            (SELECT tv_shows.*, 'show' as show_type, COUNT(user_likes.id) as num_likes
+             FROM tv_shows
+             LEFT JOIN user_likes ON tv_shows.id = user_likes.movie_id
+             GROUP BY tv_shows.id
+             ORDER BY num_likes DESC LIMIT 5)
+         ) AS shows ORDER BY num_likes DESC";
+        
+        $r = mysqli_query($connection, $q);
 
+        while ($show = mysqli_fetch_array($r, MYSQLI_ASSOC)) {
+            $show_page = ($show['show_type'] == 'movie') ? 'display_movie.php' : 'display_show.php';
+            $show_id = $show['id'];
+            ?>
+            <div class="col-lg-12 col-md-12 mb-6 movie-container">
+                <a href="<?= $show_page ?>?id=<?= $show_id ?>">
+                    <img src="<?= $show['image'] ?>" alt="" class="img-fluid movie-image">
+                </a>
+            </div>
             <?php
         }
         ?>
         </div>
     </div>
 
-    <?php
-    }
 
-  }
-  ?>
 
+
+    <!-- Category Sections -->
+    <div class="container">
+        <?php
+        // Fetch unique categories from both movies and tv_shows tables
+        $category_query = "SELECT DISTINCT category FROM
+                          (SELECT category FROM movies
+                           UNION
+                           SELECT category FROM tv_shows) AS all_categories";
+        $category_result = $connection->query($category_query);
+
+        $categories = [];
+        if ($category_result->num_rows > 0) {
+            while ($row = $category_result->fetch_assoc()) {
+                $categories[] = $row['category'];
+            }
+        } else {
+            echo "No categories found.";
+        }
+
+        // Loop through each category
+        foreach ($categories as $index => $category) {
+            $carousel_class = "owl-carousel-" . $index;
+            echo '<h2 class="text-left fw-bold display-4 mb-4">' . $category . '</h2>';
+            echo '<div class="row ' . $carousel_class . ' owl-carousel owl-theme">';
+    
+            // Fetch movies and tv shows belonging to the category
+            $show_query = "SELECT * FROM (
+                            (SELECT *, 'movie' as show_type FROM movies WHERE category = '$category' LIMIT 5)
+                            UNION
+                            (SELECT *, 'show' as show_type FROM tv_shows WHERE category = '$category' LIMIT 5)
+                          ) AS shows";
+            $show_result = mysqli_query($connection, $show_query);
+
+            // Display fetched shows
+            while ($show = mysqli_fetch_array($show_result, MYSQLI_ASSOC)) {
+                $show_page = ($show['show_type'] == 'movie') ? 'display_movie.php' : 'display_show.php';
+                $show_id = $show['id'];
+                echo <<<HTML
+            <div class="col-lg-12 col-md-12 mb-6 movie-container">
+                <a href="{$show_page}?id={$show_id}">
+                    <img src="{$show['image']}" alt="" class="img-fluid movie-image">
+                </a>
+            </div>
+    HTML;
+            }
+    
+            echo '</div>';
+        }
+        ?>
+    </div>
 </main><!-- End #main -->
 
 
 <?php
-
-include('includes/footer.html');
-
-?>
+    # Include the footer
+    include('includes/footer.html');
+    ?>

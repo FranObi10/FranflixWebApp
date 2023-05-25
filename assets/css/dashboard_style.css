@@ -32,6 +32,28 @@
   .rounded-full {
     border-radius: 100%;
   }
+
+  h2.fs-2.m-0 {
+    color: #fff!important; 
+  }
+
+  #menu-toggle {
+    color: #fff;
+  }
+
+  h3.fs-4.mb-3{
+    color:#fff;
+  }
+
+  label[for="show_type"],
+label[for="category"] {
+  color: #fff; /* Set the desired color */
+}
+
+ul.dropdown-menu {
+  right: 0;
+  left: auto;
+}
   
   #wrapper {
     overflow-x: hidden;
@@ -110,6 +132,21 @@
   color: #fff;
 }
 
+.apply-filter-button,
+.add-movie-button,
+.add-show-button {
+  white-space: normal;
+}
+
+.edit-link {
+  color: blue!important; 
+}
+
+.delete-link {
+  color: red!important; 
+}
+
+
   
   @media (min-width: 768px) {
     #sidebar-wrapper {
@@ -125,3 +162,42 @@
       margin-left: -15rem;
     }
   }
+
+  /* Modals Edit Movie and Tv Shows */
+
+  .modal-content {
+    text-align: center;
+  }
+  
+  .modal-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .modal-body input[type="text"],
+  .modal-body input[type="number"],
+  .modal-body textarea {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 16px;
+    box-sizing: border-box; 
+  }
+  
+  .modal-body label {
+    text-align: left; 
+  }
+  
+  .modal-footer {
+    justify-content: center;
+  }
+  
+  .modal-footer button {
+    margin: 0 8px;
+    background-color: #d86010;
+    border: none;
+  }
+  
+  
+  

@@ -11,11 +11,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $language = $_POST['language'];
     $num_seasons = $_POST['num_seasons'];
     $num_episodes = $_POST['num_episodes'];
-    $youtube_link = $_POST['youtube_link'];
 
-    $query = "INSERT INTO tv_shows (title, creator, image, category, description, release_year, language, num_seasons, num_episodes, youtube_link) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    $query = "INSERT INTO tv_shows (title, creator, image, category, description, release_year, language, num_seasons, num_episodes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
     $stmt = $connection->prepare($query);
-    $stmt->bind_param("sssssssiis", $title, $creator, $image, $category, $description, $release_year, $language, $num_seasons, $num_episodes, $youtube_link);
+    $stmt->bind_param("sssssssii", $title, $creator, $image, $category, $description, $release_year, $language, $num_seasons, $num_episodes);
 
     if ($stmt->execute()) {
         echo "TV Show added successfully";
@@ -26,3 +25,4 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $stmt->close();
     $connection->close();
 }
+?>

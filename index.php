@@ -36,46 +36,43 @@ if ($result->num_rows > 0) {
 ?>
 
 <!-- ======= Hero Section ======= -->
-<section id="hero">
-    <div class="hero-container">
-        <div id="heroCarousel" data-bs-interval="3000" class="carousel slide carousel-fade" data-bs-ride="carousel">
-
-            <ol class="carousel-indicators" id="hero-carousel-indicators"></ol>
-
-            <div class="carousel-inner" role="listbox">
-                <?php
-                $isFirst = true;
-                foreach ($movies as $movie) {
-                    $activeClass = $isFirst ? 'active' : '';
-                    $isFirst = false;
-                ?>
-
-                <!-- Slide -->
-                <div class="carousel-item <?php echo $activeClass; ?>"
-                    style="background-image: url('<?php echo $movie['image']; ?>');">
-                    <div class="carousel-container">
-                        <div class="carousel-content">
-                            <div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <?php } ?>
-
+<section id="hero"
+    style="background-image: url('https://authors.appadvice.com/wp-content/appadvice-v2-media/2016/11/Netflix-background_860c8ece6b34fb4f43af02255ca8f225.jpg'); background-size: cover; height: 100vh; position: relative;">
+    <div style="background: rgba(0, 0, 0, 0.5); position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
+        <div class="hero-container" style="display: flex; justify-content: center; align-items: center; height: 100%;">
+            <div style="text-align: center; color: white;">
+                <h1 style="font-size: 3em; animation: pulse 2s infinite;">Welcome to <span
+                        id="franflix">Franflix!</span></h1>
+                <p><a href="login.php" style="color: #ea580c; text-decoration: underline;">Login</a> or <a
+                        href="register.php" style="color: #ea580c; text-decoration: underline;">Register</a> to explore
+                    our extensive catalog!</p>
             </div>
-
-            <a class="carousel-control-prev" href="#heroCarousel" role="button" data-bs-slide="prev">
-                <span class="carousel-control-prev-icon bi bi-chevron-left" aria-hidden="true"></span>
-            </a>
-
-            <a class="carousel-control-next" href="#heroCarousel" role="button" data-bs-slide="next">
-                <span class="carousel-control-next-icon bi bi-chevron-right" aria-hidden="true"></span>
-            </a>
-
         </div>
     </div>
-</section><!-- End Hero -->
+</section>
+<!-- End Hero -->
+
+<style>
+#franflix {
+    color: #ea580c;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.5);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+</style>
+
+
 
 <main id="main">
 

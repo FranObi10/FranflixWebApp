@@ -29,6 +29,26 @@ require('functionality/connect_db.php');
 
 ?>
 
+<style>
+#my-header-category {
+    color: #fff;
+    font-size: 1.5rem;
+}
+
+.movie-container {
+    width: 300px;
+    height: auto;
+    overflow: hidden;
+}
+
+.movie-image {
+    width: 100%;
+    height: 200px;
+    display: block;
+}
+</style>
+
+
 <main id="main">
 
     <?php
