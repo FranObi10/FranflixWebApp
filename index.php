@@ -44,8 +44,7 @@ if ($result->num_rows > 0) {
                 <h1 style="font-size: 3em; animation: pulse 2s infinite;">Welcome to <span
                         id="franflix">Franflix!</span></h1>
                 <p><a href="login.php" style="color: #ea580c; text-decoration: underline;">Login</a> or <a
-                        href="register.php" style="color: #ea580c; text-decoration: underline;">Register</a> to explore
-                    our extensive catalog!</p>
+                        href="register.php" style="color: #ea580c; text-decoration: underline;">Register</a></p>
             </div>
         </div>
     </div>
